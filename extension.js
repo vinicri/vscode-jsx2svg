@@ -45,13 +45,21 @@ function activate(context) {
 					app()
 				);
 
-				fs.writeFile(`${path}/${fileName}.svg`, appHTML, (err) => {
-					if (err) {
-						vscode.window.showErrorMessage(err)
+				const output = `${path}/${fileName}.svg`
+				fs.access(output, fs.F_OK, (err) => {
+					if(err) {
+						fs.writeFile(output, appHTML, (err) => {
+							if (err) {
+								vscode.window.showErrorMessage(err)
+								return
+							}
+						})
 						return
 					}
-
+					vscode.window.showErrorMessage(`Conversion failed. ${fileName}.svg already exists.`)
 				})
+
+	
 
 				if (err) {
 					vscode.window.showErrorMessage(err)
@@ -61,7 +69,6 @@ function activate(context) {
 		} catch (e) {
 			vscode.window.showErrorMessage(e.message)
 		}
-
 	});
 
 	context.subscriptions.push(disposable);
