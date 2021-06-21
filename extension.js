@@ -53,12 +53,11 @@ function activate(context) {
 							fs.writeFile(output, appHTML, (err) => {
 								if (err) {
 									vscode.window.showErrorMessage(err)
-									return
 								}
 							})
-							return
+						} else {
+							vscode.window.showErrorMessage(`Conversion failed. ${fileName}.svg already exists.`)
 						}
-						vscode.window.showErrorMessage(`Conversion failed. ${fileName}.svg already exists.`)
 					})
 				})
 				
