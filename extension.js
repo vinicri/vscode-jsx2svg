@@ -40,8 +40,6 @@ function activate(context) {
 
 				delete require.cache[require.resolve('./template')];
 				const input = require('./template')
-				//vscode.window.showInformationMessage(JSON.stringify())
-
 
 				Object.keys(input).forEach(exportedFunction => {
 					const appHTML = ReactDOMServer.renderToString(
@@ -64,9 +62,6 @@ function activate(context) {
 					})
 				})
 				
-
-	
-
 				if (err) {
 					vscode.window.showErrorMessage(err)
 					return
