@@ -20,17 +20,23 @@ function activate(context) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('jsx2svg.convert', async function ({ fsPath, args }) {
+	let disposable = vscode.commands.registerCommand('jsx2svg.convert', async function ({ fsPath, ...args }) {
 		
 		const jsx = fs.readFileSync(fsPath).toString();
-
 		try {
 
 			const match = fsPath.match(/(.*)\/(.*)\.js$/)
 			const path = match[1]
 			const inputFile = match[2]
+			const configuration = vscode.workspace.getConfiguration('jsx2svg')
+			let projectFolder = ''
 
-			vscode.window.showInformationMessage(args)
+			vscode.workspace.workspaceFolders.forEach(folder => {
+				const match = fsPath.match(new RegExp(folder.uri.path))
+				if(match) {
+						projectFolder = folder.uri.path
+				}
+			})
 
 			const compiledJsx = await babel.transformAsync(jsx, {
 				"presets": [require('@babel/preset-env'), require("@babel/preset-react")]
@@ -47,10 +53,14 @@ function activate(context) {
 					);
 	
 					const fileName = exportedFunction === 'default' ? inputFile : exportedFunction
-					const output = `${path}/${fileName}.svg`
-					fs.access(output, fs.F_OK, (err) => {
+					const outputPath = configuration.outputFolder ? `${projectFolder}/${configuration.outputFolder}` : path
+					const outputFile = `${outputPath}/${fileName}.svg`
+					fs.access(outputFile, fs.F_OK, (err) => {
 						if(err) {
-							fs.writeFile(output, appHTML, (err) => {
+							fs.writeFile(outputFile, appHTML, (err) => {
+								if(configuration.outputFolder) {
+									vscode.window.showInformationMessage(`${fileName}.svg written to ${configuration.outputFolder}`)
+								}
 								if (err) {
 									vscode.window.showErrorMessage(err)
 								}

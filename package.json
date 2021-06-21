@@ -2,7 +2,7 @@
 	"name": "jsx2svg",
 	"displayName": "jsx2svg",
 	"description": "Converts jsx into svg",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"publisher": "vinicri",
 	"repository": {
 		"type": "git",
@@ -33,6 +33,16 @@
 					"group": "navigation"
 				}
 			]
+		},
+		"configuration": {
+      "title": "JSX to SVG",
+      "properties": {
+        "jsx2svg.outputFolder": {
+          "type": "string",
+          "default": "",
+          "description": "If set, output files will be written to this folder. Do not use leading nor trailing slashes. Correct usage: 'src/icons'"
+        }
+      }
 		}
 	},
 	"scripts": {
