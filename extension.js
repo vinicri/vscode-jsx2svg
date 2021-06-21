@@ -28,7 +28,7 @@ function activate(context) {
 
 			const match = fsPath.match(/(.*)\/(.*)\.js$/)
 			const path = match[1]
-			const fileName = match[2]
+			const inputFile = match[2]
 
 			vscode.window.showInformationMessage(args)
 
@@ -39,25 +39,31 @@ function activate(context) {
 			fs.writeFile(`${__dirname}/template.js`, compiledJsx.code, (err) => {
 
 				delete require.cache[require.resolve('./template')];
-				const { default: app } = require('./template')
+				const input = require('./template')
+				//vscode.window.showInformationMessage(JSON.stringify())
 
-				const appHTML = ReactDOMServer.renderToString(
-					app()
-				);
 
-				const output = `${path}/${fileName}.svg`
-				fs.access(output, fs.F_OK, (err) => {
-					if(err) {
-						fs.writeFile(output, appHTML, (err) => {
-							if (err) {
-								vscode.window.showErrorMessage(err)
-								return
-							}
-						})
-						return
-					}
-					vscode.window.showErrorMessage(`Conversion failed. ${fileName}.svg already exists.`)
+				Object.keys(input).forEach(exportedFunction => {
+					const appHTML = ReactDOMServer.renderToString(
+						input[exportedFunction]()
+					);
+	
+					const fileName = exportedFunction === 'default' ? inputFile : exportedFunction
+					const output = `${path}/${fileName}.svg`
+					fs.access(output, fs.F_OK, (err) => {
+						if(err) {
+							fs.writeFile(output, appHTML, (err) => {
+								if (err) {
+									vscode.window.showErrorMessage(err)
+									return
+								}
+							})
+							return
+						}
+						vscode.window.showErrorMessage(`Conversion failed. ${fileName}.svg already exists.`)
+					})
 				})
+				
 
 	
 
